@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunry0 | GitHub Library</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Roboto Mono', monospace;
+    background: linear-gradient(135deg, #000, #111);
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+    color:#fff;
+    cursor:none;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  @keyframes gradientBG {
+    0%{background-position:0% 0%;}
+    50%{background-position:100% 100%;}
+    100%{background-position:0% 0%;}
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    top:0; left:0;
+    width:15px; height:15px;
+    border-radius:50%;
+    background:#fff;
+    pointer-events:none;
+    transform: translate(-50%,-50%);
+    transition: transform 0.12s ease-out, width 0.2s, height 0.2s, background 0.2s;
+    z-index:9999;
+  }
+  .cursor.stick {
+    width:25px;
+    height:25px;
+    background:#fff;
+  }
+
+  /* Container & heading */
+  .container { max-width:1000px; margin:auto; padding:2rem; text-align:center; }
+  h1 { font-size:2.8rem; margin-bottom:0.5rem; opacity:0; animation:fadeIn 1s forwards 0.2s; }
+  p { font-size:1.2rem; opacity:0; animation:fadeIn 1s forwards 0.4s; margin-bottom:2rem; }
+
+  @keyframes fadeIn { to { opacity:1; } }
+
+  /* Snow */
+  .snowflake {
+    position:fixed; top:-10px; width:8px; height:8px; background:#fff;
+    border-radius:50%; pointer-events:none; animation-name:fall;
+    animation-timing-function: linear; animation-iteration-count: infinite;
+    opacity:0.7;
+  }
+  @keyframes fall { 0%{transform:translateY(-10px);} 100%{transform:translateY(100vh);} }
+
+  /* Repo cards */
+  #repo-list { list-style:none; margin-top:2rem; padding:0; display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; }
+  .repo-card {
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.3);
+    border-radius:12px;
+    padding:1rem;
+    width:270px;
+    text-align:left;
+    opacity:0;
+    transform:translateY(25px);
+    animation:cardAppear 0.8s forwards;
+    display:flex; flex-direction:column; gap:0.6rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .repo-card:hover {
+    transform:translateY(-5px) scale(1.03);
+    box-shadow:0 10px 20px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.12);
+  }
+  .repo-card h3 { margin-bottom:0.5rem; font-size:1.15rem; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:4px; }
+  .repo-card a {
+    color:#fff; text-decoration:none; font-size:0.9rem;
+    border:1px solid rgba(255,255,255,0.3); border-radius:4px; padding:3px 7px; margin-right:5px;
+    display:inline-block;
+    transition: all 0.2s ease;
+  }
+  .repo-card a:hover { background:#fff; color:#000; border-color:#fff; }
+
+  @keyframes cardAppear { to{ opacity:1; transform:translateY(0);} }
+
+  @media(max-width:600px){
+    h1{ font-size:2rem; }
+    p{ font-size:1rem; }
+    .repo-card{ width:90%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor"></div>
+<div class="container">
+  <h1>Lunry0</h1>
+  <p>Welcome to my GitHub Library</p>
+  <ul id="repo-list"></ul>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.querySelector('.cursor');
+  let mouseX=0, mouseY=0, cursorX=0, cursorY=0;
+  let stickElement=null;
+  document.addEventListener('mousemove', e=>{ mouseX=e.clientX; mouseY=e.clientY; });
+
+  function animateCursor(){
+    if(stickElement){
+      const rect = stickElement.getBoundingClientRect();
+      const targetX = rect.left + rect.width/2;
+      const targetY = rect.top + rect.height/2;
+      cursorX += (targetX - cursorX) * 0.18;
+      cursorY += (targetY - cursorY) * 0.18;
+    } else {
+      cursorX += (mouseX - cursorX) * 0.18;
+      cursorY += (mouseY - cursorY) * 0.18;
+    }
+    cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Stick to interactive elements
+  document.addEventListener('mouseover', e=>{
+    if(e.target.tagName==='A' || e.target.tagName==='BUTTON'){
+      stickElement=e.target;
+      cursor.classList.add('stick');
+    }
+  });
+  document.addEventListener('mouseout', e=>{
+    if(e.target===stickElement){
+      stickElement=null;
+      cursor.classList.remove('stick');
+    }
+  });
+
+  // Snow
+  const snowCount=70;
+  for(let i=0;i<snowCount;i++){
+    const snow=document.createElement('div');
+    snow.classList.add('snowflake');
+    snow.style.left=Math.random()*window.innerWidth+'px';
+    snow.style.animationDuration=(Math.random()*7+5)+'s';
+    snow.style.opacity=Math.random()*0.7+0.3;
+    let size=Math.random()*5+3;
+    snow.style.width=snow.style.height=size+'px';
+    snow.style.animationDelay=Math.random()*5+'s';
+    document.body.appendChild(snow);
+  }
+
+  // Fetch repos + HTML files
+  async function fetchRepos(){
+    const list=document.getElementById('repo-list');
+    const repos=await fetch('https://api.github.com/users/Lunry0/repos').then(r=>r.json());
+    repos.sort((a,b)=> new Date(b.updated_at)-new Date(a.updated_at));
+    let delay=0;
+    for(let repo of repos){
+      const li=document.createElement('li');
+      li.classList.add('repo-card');
+      li.style.animationDelay=`${delay}s`;
+      li.innerHTML=`<h3>${repo.name}</h3><a href="${repo.html_url}" target="_blank">Repo</a>`;
+
+      // Fetch all HTML files in root
+      try{
+        const files=await fetch(`https://api.github.com/repos/Lunry0/${repo.name}/contents/`).then(r=>r.json());
+        files.forEach(file=>{
+          if(file.type==='file' && file.name.endsWith('.html') && file.name!=='index.html'){
+            const a=document.createElement('a');
+            a.href=`https://Lunry0.github.io/${repo.name}/${file.name}`;
+            a.target="_blank";
+            a.innerText=file.name;
+            li.appendChild(a);
+          }
+        });
+      }catch(err){ console.log(err); }
+
+      list.appendChild(li);
+      delay+=0.15;
+    }
+  }
+  fetchRepos();
+</script>
+
+</body>
+</html>
